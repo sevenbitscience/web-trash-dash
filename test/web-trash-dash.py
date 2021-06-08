@@ -4,9 +4,23 @@ import random
 
 class Trash:
     def __init__(self):
-        self.trashSprite = pygame.image.load("assets/gfx/appleCore.png")
-        self.sprite = self.TrashSprite
-        self.position = pygame.Vector2(200, 200)
+        self.screenheight = 640
+        self.trashSprites = [pygame.image.load("assets/gfx/appleCore.png"), pygame.image.load("assets/gfx/soda.png")]
+        self.reset()
+
+    def reset(self):
+        self.size = random.randrange(20, 30)
+        self.sprite = self.trashSprites[random.randint(0, len(self.trashSprites) - 1)]
+        self.sprite = pygame.transform.scale(self.sprite, (self.size, self.size))
+        self.sprite = pygame.transform.rotate(self.sprite, random.randrange(0, 360))
+        self.position = [random.randrange(370, 1100), random.randrange(-300, -self.size)]
+        self.speed = random.uniform(0.5, 1.5)
+
+    def fall(self):
+        if self.position[1] < self.screenheight:
+            self.position[1] += self.speed
+        else:
+            self.reset()
 
 
 def check_collision_list(a, b):
@@ -35,7 +49,11 @@ def main():
     inside = pygame.image.load("assets/gfx/inside.png")
     inside = pygame.transform.scale(inside, (1280, 640))
 
-    trash_pieces = Trash()
+    # create trash pieces
+    trash_pieces = []
+
+    for i in range(20):
+        trash_pieces.append(Trash())
 
     running = False
 
@@ -63,8 +81,15 @@ def main():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return
+
             screen.blit(house, (0, 0))
+
+            for trash in trash_pieces:
+                screen.blit(trash.sprite, (trash.position[0], trash.position[1]))
+                trash.fall()
+
             clock.tick(60)
+            print(clock.get_fps())
             pygame.display.update()
         while not running:
             select = False
