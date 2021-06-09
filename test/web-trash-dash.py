@@ -3,9 +3,12 @@ import random
 
 
 class Trash:
+    trashSprites = None
+
     def __init__(self):
         self.screenheight = 640
-        self.trashSprites = [pygame.image.load("assets/gfx/appleCore.png"), pygame.image.load("assets/gfx/soda.png")]
+        if self.trashSprites is None:
+            self.trashSprites = [pygame.image.load("assets/gfx/appleCore.png"), pygame.image.load("assets/gfx/soda.png")]
         self.reset()
 
     def reset(self):
@@ -51,7 +54,24 @@ def main():
 
     house = pygame.image.load("assets/gfx/house.png")
     house = pygame.transform.scale(house, (1280, 640))
-    barriers = [(0, 0, 320, 200), (100, 200, 70, 130)]
+
+    score_font = pygame.font.Font("assets/Fonts/Press_Start_2P/PressStart2P-Regular.ttf", 50)
+    score_color = (191, 69, 69)
+    hud_icon_size = 60
+    trash_pile = pygame.image.load("assets/gfx/soda.png")
+    trash_pile = pygame.transform.scale(trash_pile, (hud_icon_size, hud_icon_size))
+    coin = pygame.image.load("assets/gfx/coin.png")
+    coin = pygame.transform.scale(coin, (hud_icon_size, hud_icon_size))
+    timer_icon = pygame.image.load("assets/gfx/hourglass-icon.png")
+    timer_icon = pygame.transform.scale(timer_icon, (hud_icon_size, hud_icon_size))
+    backpack_icon = pygame.image.load("assets/gfx/backpack-icon.png")
+    backpack_icon = pygame.transform.scale(backpack_icon, (hud_icon_size, hud_icon_size))
+    trash_text = score_font.render(str(0), True, score_color)
+    score_text = score_font.render(str(0), True, score_color)
+    backpack_text = score_font.render(str(10), True, score_color)
+    score_holder = pygame.Rect(10, 550, 600, 80)
+
+    barriers = [(0, 0, 280, 200), (80, 200, 70, 70)]
 
     upgrades_font = pygame.font.Font("assets/Fonts/Press_Start_2P/PressStart2P-Regular.ttf", 18)
     upgrade_text_color = (36, 36, 36)
@@ -70,6 +90,9 @@ def main():
         'right': False
     }
 
+    trash_collected = 0
+    backpack = 10
+
     # create trash pieces
     trash_pieces = []
 
@@ -79,6 +102,8 @@ def main():
     # bools for what menu to be in
     running = True
     shop_open = False
+    interact = False
+    select = False
 
     begin_button = (328, 191, 746, 72)
     screen.blit(title_screen, (0, 0))
@@ -101,11 +126,14 @@ def main():
 
     while True:
         while running:
+            interact = False
             for event in pygame.event.get():
                 # find which keys are pressed
                 if event.type == pygame.QUIT:
                     return
                 if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        interact = True
                     if event.key == pygame.K_LEFT:
                         keys["left"] = True
                     if event.key == pygame.K_RIGHT:
@@ -151,26 +179,52 @@ def main():
 
                     # deal with x positions:
                     # check if the dino is going to be within the screen
-                    if 0 < next_pos[0] < screen.get_width() - next_pos[2]:
+                    if dino.velocity[0] != 0:
+
+                        for barrier in barriers:
+                            if check_collision_list(next_pos, barrier):
+                                dino.velocity[0] = 0
+
                         # if the dino needs to move, move it
-                        if dino.velocity[0] != 0:
+                        if 0 < next_pos[0] < screen.get_width() - next_pos[2]:
                             dino.position[0] += dino.velocity[0]
                             dino.velocity[0] = 0
 
                     # deal with y positions
                     # check if the dino is going to be within the screen
-                    if 0 < next_pos[1] < screen.get_height() - next_pos[3]:
-                        if dino.velocity[1] != 0:
+                    if dino.velocity[1] != 0:
+
+                        for barrier in barriers:
+                            if check_collision_list(next_pos, barrier):
+                                dino.velocity[1] = 0
+
+                        # if the dino needs to move, move it
+                        if 0 < next_pos[1] < 490:
                             dino.position[1] += dino.velocity[1]
                             dino.velocity[1] = 0
 
                 screen.blit(house, (0, 0))
 
                 for trash in trash_pieces:
+
+                    if interact and trash_collected < backpack:
+                        if check_collision_list([dino.position[0], dino.position[1], 45, 52],
+                                                [trash.position[0], trash.position[1], trash.size, trash.size]):
+                            trash_collected += 1
+                            trash.__init__()
+                            print(trash_collected)
                     screen.blit(trash.sprite, (trash.position[0], trash.position[1]))
                     trash.fall()
 
                 screen.blit(dino.currentSprite, dino.position)
+
+                pygame.draw.rect(screen, (38, 24, 24), score_holder, 0, 10)
+                screen.blit(trash_pile, (20, 560))
+                screen.blit(trash_text, (80, 567))
+                screen.blit(coin, (200, 560))
+                screen.blit(score_text, (270, 567))
+                screen.blit(backpack_icon, (450, 560))
+                screen.blit(backpack_text, (510, 567))
 
             clock.tick(60)
             pygame.display.update()
