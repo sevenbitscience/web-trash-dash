@@ -51,6 +51,7 @@ def main():
 
     house = pygame.image.load("assets/gfx/house.png")
     house = pygame.transform.scale(house, (1280, 640))
+    barriers = [(0, 0, 320, 200), (100, 200, 70, 130)]
 
     upgrades_font = pygame.font.Font("assets/Fonts/Press_Start_2P/PressStart2P-Regular.ttf", 18)
     upgrade_text_color = (36, 36, 36)
@@ -72,11 +73,11 @@ def main():
     # create trash pieces
     trash_pieces = []
 
-    for i in range(20):
+    for i in range(15):
         trash_pieces.append(Trash())
 
     # bools for what menu to be in
-    running = False
+    running = True
     shop_open = False
 
     begin_button = (328, 191, 746, 72)
@@ -101,6 +102,7 @@ def main():
     while True:
         while running:
             for event in pygame.event.get():
+                # find which keys are pressed
                 if event.type == pygame.QUIT:
                     return
                 if event.type == pygame.KEYDOWN:
@@ -124,27 +126,43 @@ def main():
 
             if not shop_open:
 
-                if keys["left"]:
-                    dino.velocity[0] = -dino.speed
-                    dino.currentSprite = dino.leftSprite
-                if keys["right"]:
-                    dino.velocity[0] = dino.speed
-                    dino.currentSprite = dino.rightSprite
-                if keys["up"]:
-                    dino.velocity[1] = -dino.speed
-                if keys["down"]:
-                    dino.velocity[1] = dino.speed
-                if keys["left"] and keys["right"]:
-                    dino.velocity[0] = 0
-                if keys["up"] and keys["down"]:
-                    dino.velocity[1] = 0
+                if True in keys.values():
+                    # Use which keys are being pressed to find which way to move
+                    if keys["left"]:
+                        dino.velocity[0] = -dino.speed
+                        dino.currentSprite = dino.leftSprite
+                    if keys["right"]:
+                        dino.velocity[0] = dino.speed
+                        dino.currentSprite = dino.rightSprite
+                    if keys["up"]:
+                        dino.velocity[1] = -dino.speed
+                    if keys["down"]:
+                        dino.velocity[1] = dino.speed
 
-                if not -0.5 > dino.velocity[0] > 0.5:
-                    dino.position[0] += dino.velocity[0]
-                    dino.velocity[0] = 0
-                if not -0.5 > dino.velocity[1] > 0.5:
-                    dino.position[1] += dino.velocity[1]
-                    dino.velocity[1] = 0
+                    # if keys in opposite directions are pressed
+                    if keys["left"] and keys["right"]:
+                        dino.velocity[0] = 0
+                    if keys["up"] and keys["down"]:
+                        dino.velocity[1] = 0
+
+                    # find the next position of the dino
+                    next_pos = [(dino.position[0] + 8) + dino.velocity[0], (dino.position[1] + 6) + dino.velocity[1],
+                                45, 52]
+
+                    # deal with x positions:
+                    # check if the dino is going to be within the screen
+                    if 0 < next_pos[0] < screen.get_width() - next_pos[2]:
+                        # if the dino needs to move, move it
+                        if dino.velocity[0] != 0:
+                            dino.position[0] += dino.velocity[0]
+                            dino.velocity[0] = 0
+
+                    # deal with y positions
+                    # check if the dino is going to be within the screen
+                    if 0 < next_pos[1] < screen.get_height() - next_pos[3]:
+                        if dino.velocity[1] != 0:
+                            dino.position[1] += dino.velocity[1]
+                            dino.velocity[1] = 0
 
                 screen.blit(house, (0, 0))
 
@@ -155,7 +173,6 @@ def main():
                 screen.blit(dino.currentSprite, dino.position)
 
             clock.tick(60)
-            print(clock.get_fps())
             pygame.display.update()
 
         while not running:
