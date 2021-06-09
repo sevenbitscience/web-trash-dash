@@ -1,5 +1,3 @@
-from typing import List
-
 import pygame
 import random
 
@@ -101,12 +99,10 @@ def main():
                 if event.type == pygame.QUIT:
                     return
 
-            screen.blit(house, (0, 0))
-
-            pressed = pygame.key.get_pressed()
             if not shop_open:
+                pressed = pygame.key.get_pressed()
                 if pressed[pygame.K_a]:
-                    dino.velocity[0] -= dino.speed
+                    dino.velocity[0] = -dino.speed
                     if not left:
                         left = True
                         dino.currentSprite = dino.leftSprite
@@ -120,22 +116,25 @@ def main():
                 if pressed[pygame.K_s]:
                     dino.velocity[1] = dino.speed
 
-            if dino.velocity[0] > 0:
-                dino.position[0] += dino.velocity[0]
-                dino.velocity[0] = 0
-            if dino.velocity[1] > 0:
-                dino.position[1] += dino.velocity[1]
-                dino.velocity[1] = 0
-            
-            screen.blit(dino.currentSprite, dino.position)
+                if not -0.5 > dino.velocity[0] > 0.5:
+                    dino.position[0] += dino.velocity[0]
+                    dino.velocity[0] = 0
+                if not -0.5 > dino.velocity[1] > 0.5:
+                    dino.position[1] += dino.velocity[1]
+                    dino.velocity[1] = 0
 
-            for trash in trash_pieces:
-                screen.blit(trash.sprite, (trash.position[0], trash.position[1]))
-                trash.fall()
+                screen.blit(house, (0, 0))
+
+                for trash in trash_pieces:
+                    screen.blit(trash.sprite, (trash.position[0], trash.position[1]))
+                    trash.fall()
+
+                screen.blit(dino.currentSprite, dino.position)
 
             clock.tick(60)
             print(clock.get_fps())
             pygame.display.update()
+
         while not running:
             select = False
             for event in pygame.event.get():
