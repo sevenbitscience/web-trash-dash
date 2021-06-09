@@ -113,6 +113,8 @@ def main():
     }
 
     trash_collected = 0
+    balance = 0
+    trash_price = 0
     backpack = 10
 
     # create trash pieces
@@ -283,13 +285,20 @@ def main():
                 if select and not selling:
                     mouse_pos = (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], 3, 3)
                     if check_collision_list(mouse_pos, sell_button):
-                        start_sell = pygame.time.get_ticks()
-                        selling = True
+                        if trash_collected > 0:
+                            start_sell = pygame.time.get_ticks()
+                            selling = True
+                        else:
+                            shop_open = False
 
                 if selling:
                     current_sell = pygame.time.get_ticks()
                     time_elapsed = current_sell - start_sell
                     if time_elapsed >= 5000:
+                        balance += trash_collected * trash_price
+                        trash_collected = 0
+                        trash_text = score_font.render(str(trash_collected), True, score_color)
+                        score_text = score_font.render(str(balance), True, score_color)
                         selling = False
                         shop_open = False
 
@@ -298,10 +307,10 @@ def main():
                 if selling:
                     pygame.draw.rect(screen, (50, 50, 50), sell_rect, 0, 10)
                     pygame.draw.rect(screen, sell_button_color, (sell_rect[0], sell_rect[1],
-                                                                 sell_rect[2] - int(time_elapsed / 9.2), sell_rect[3]),
-                                     0, 10)
+                                                                 sell_rect[2] - int(time_elapsed / 9.2)
+                                                                 , sell_rect[3]), 0, 10)
                 else:
-                    pygame.draw.rect(screen, (50, 50, 50), sell_rect, 0, 10)
+                    pygame.draw.rect(screen, sell_button_color, sell_rect, 0, 10)
 
                 screen.blit(sell_text, (570, 465))
             clock.tick(60)
