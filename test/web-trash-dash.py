@@ -55,7 +55,7 @@ def main():
     house = pygame.image.load("assets/gfx/house.png")
     house = pygame.transform.scale(house, (1280, 640))
 
-    score_font = pygame.font.Font("assets/Fonts/Press_Start_2P/PressStart2P-Regular.ttf", 50)
+    score_font = pygame.font.SysFont("calibri", 50)
     score_color = (191, 69, 69)
     hud_icon_size = 60
     trash_pile = pygame.image.load("assets/gfx/soda.png")
@@ -73,7 +73,7 @@ def main():
 
     barriers = [(0, 0, 280, 200), (80, 200, 70, 70)]
 
-    upgrades_font = pygame.font.Font("assets/Fonts/Press_Start_2P/PressStart2P-Regular.ttf", 18)
+    upgrades_font = pygame.font.SysFont("calibri", 18)
     upgrade_text_color = (36, 36, 36)
     start_button = (985, 435, 205, 90)
     start_text = upgrades_font.render("Next day", True, upgrade_text_color)
@@ -81,6 +81,15 @@ def main():
     quit_text = upgrades_font.render("Quit", True, (181, 23, 2))
     inside = pygame.image.load("assets/gfx/inside.png")
     inside = pygame.transform.scale(inside, (1280, 640))
+
+    start_ticks = pygame.time.get_ticks()
+    last_seconds = -1
+    total_time = 60
+    time_left = total_time
+    timer_width = 490
+    timer_step = timer_width / time_left
+    timer_rect = [650, 562, timer_width, 55]
+    timer_color = [0, 255, 0]
 
     dino = Player()
     keys = {
@@ -127,6 +136,24 @@ def main():
     while True:
         while running:
             interact = False
+
+            current_ticks = pygame.time.get_ticks()
+            seconds = int(((current_ticks - start_ticks) / 1000))
+            if last_seconds != seconds:
+                time_left -= seconds - last_seconds
+                # print(time_left)
+                last_seconds = seconds
+                timer_rect[2] = timer_width - (timer_step * (total_time - time_left))
+
+            if time_left >= 30:
+                timer_color = [103, 219, 53]
+            elif 15 < time_left < 30:
+                timer_color = [245, 197, 39]
+            elif 0 < time_left < 15:
+                timer_color = [184, 44, 22]
+            elif time_left <= 0:
+                running = False
+
             for event in pygame.event.get():
                 # find which keys are pressed
                 if event.type == pygame.QUIT:
@@ -211,8 +238,8 @@ def main():
                         if check_collision_list([dino.position[0], dino.position[1], 45, 52],
                                                 [trash.position[0], trash.position[1], trash.size, trash.size]):
                             trash_collected += 1
+                            trash_text = score_font.render(str(trash_collected), True, score_color)
                             trash.__init__()
-                            print(trash_collected)
                     screen.blit(trash.sprite, (trash.position[0], trash.position[1]))
                     trash.fall()
 
@@ -225,6 +252,10 @@ def main():
                 screen.blit(score_text, (270, 567))
                 screen.blit(backpack_icon, (450, 560))
                 screen.blit(backpack_text, (510, 567))
+
+                pygame.draw.rect(screen, (38, 24, 24), (640, 550, 560, 80), 0, 10)
+                screen.blit(timer_icon, (1130, 560))
+                pygame.draw.rect(screen, timer_color, timer_rect, 0, 10)
 
             clock.tick(60)
             pygame.display.update()
