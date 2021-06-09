@@ -1,3 +1,5 @@
+from typing import List
+
 import pygame
 import random
 
@@ -14,13 +16,25 @@ class Trash:
         self.sprite = pygame.transform.scale(self.sprite, (self.size, self.size))
         self.sprite = pygame.transform.rotate(self.sprite, random.randrange(0, 360))
         self.position = [random.randrange(370, 1100), random.randrange(-300, -self.size)]
-        self.speed = random.uniform(0.5, 1.5)
+        self.speed = random.uniform(0.5, 1)
 
     def fall(self):
         if self.position[1] < self.screenheight:
             self.position[1] += self.speed
         else:
             self.reset()
+
+
+class Player:
+    def __init__(self):
+        self.speed = 2
+        self.position = [100, 400]
+        self.velocity = [0, 0]
+        self.idle = pygame.image.load("assets/gfx/dino.png")
+        self.rightSprite = self.idle
+        self.rightSprite = pygame.transform.scale(self.rightSprite, (60, 60))
+        self.leftSprite = pygame.transform.flip(self.rightSprite, True, False)
+        self.currentSprite = self.rightSprite
 
 
 def check_collision_list(a, b):
@@ -49,13 +63,18 @@ def main():
     inside = pygame.image.load("assets/gfx/inside.png")
     inside = pygame.transform.scale(inside, (1280, 640))
 
+    dino = Player()
+    left = False
+
     # create trash pieces
     trash_pieces = []
 
     for i in range(20):
         trash_pieces.append(Trash())
 
+    # bools for what menu to be in
     running = False
+    shop_open = False
 
     begin_button = (328, 191, 746, 72)
     screen.blit(title_screen, (0, 0))
@@ -83,6 +102,32 @@ def main():
                     return
 
             screen.blit(house, (0, 0))
+
+            pressed = pygame.key.get_pressed()
+            if not shop_open:
+                if pressed[pygame.K_a]:
+                    dino.velocity[0] -= dino.speed
+                    if not left:
+                        left = True
+                        dino.currentSprite = dino.leftSprite
+                if pressed[pygame.K_d]:
+                    dino.velocity[0] = dino.speed
+                    if left:
+                        left = False
+                        dino.currentSprite = dino.rightSprite
+                if pressed[pygame.K_w]:
+                    dino.velocity[1] = -dino.speed
+                if pressed[pygame.K_s]:
+                    dino.velocity[1] = dino.speed
+
+            if dino.velocity[0] > 0:
+                dino.position[0] += dino.velocity[0]
+                dino.velocity[0] = 0
+            if dino.velocity[1] > 0:
+                dino.position[1] += dino.velocity[1]
+                dino.velocity[1] = 0
+            
+            screen.blit(dino.currentSprite, dino.position)
 
             for trash in trash_pieces:
                 screen.blit(trash.sprite, (trash.position[0], trash.position[1]))
