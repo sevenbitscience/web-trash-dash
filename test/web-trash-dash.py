@@ -8,7 +8,12 @@ class Trash:
     def __init__(self):
         self.screenheight = 640
         if self.trashSprites is None:
-            self.trashSprites = [pygame.image.load("assets/gfx/appleCore.png"), pygame.image.load("assets/gfx/soda.png")]
+            self.trashSprites = [pygame.image.load("assets/gfx/appleCore.png"),
+                                 pygame.image.load("assets/gfx/soda.png")]
+        self.size = None
+        self.sprite = None
+        self.position = None
+        self.speed = None
         self.reset()
 
     def reset(self):
@@ -64,8 +69,9 @@ def main():
     sell_font = pygame.font.SysFont("calibri", 40)
     sell_text = sell_font.render("Sell", True, (235, 235, 235))
     sell_button_color = (71, 145, 64)
-    sell_button = (383, 445, 542, 80)
-    sell_rect = pygame.Rect(sell_button)
+    sell_rect = (383, 445, 542, 80)
+    start_sell = 0
+    time_elapsed = 0
 
     # load stuff for hotbar
     score_font = pygame.font.SysFont("calibri", 50)
@@ -89,7 +95,7 @@ def main():
     upgrades_font = pygame.font.SysFont("calibri", 18)
     upgrade_text_color = (36, 36, 36)
     start_button = (985, 435, 205, 90)
-    start_text = upgrades_font.render("Next day", True, upgrade_text_color)
+    start_text = upgrades_font.render("Start day", True, upgrade_text_color)
     quit_button = (985, 320, 205, 90)
     quit_text = upgrades_font.render("Quit", True, (181, 23, 2))
     inside = pygame.image.load("assets/gfx/inside.png")
@@ -114,7 +120,7 @@ def main():
 
     trash_collected = 0
     balance = 0
-    trash_price = 0
+    trash_price = 5
     backpack = 10
 
     # create trash pieces
@@ -124,11 +130,9 @@ def main():
         trash_pieces.append(Trash())
 
     # bools for what menu to be in
-    running = True
+    running = False
     shop_open = False
     selling = False
-    interact = False
-    select = False
 
     begin_button = (328, 191, 746, 72)
     screen.blit(title_screen, (0, 0))
@@ -262,7 +266,7 @@ def main():
                                                 [trash.position[0], trash.position[1], trash.size, trash.size]):
                             trash_collected += 1
                             trash_text = score_font.render(str(trash_collected), True, score_color)
-                            trash.__init__()
+                            trash.reset()
                     screen.blit(trash.sprite, (trash.position[0], trash.position[1]))
                     trash.fall()
 
@@ -270,11 +274,11 @@ def main():
 
                 pygame.draw.rect(screen, (38, 24, 24), score_holder, 0, 10)
                 screen.blit(trash_pile, (20, 560))
-                screen.blit(trash_text, (80, 567))
+                screen.blit(trash_text, (80, 560))
                 screen.blit(coin, (200, 560))
-                screen.blit(score_text, (270, 567))
+                screen.blit(score_text, (270, 560))
                 screen.blit(backpack_icon, (450, 560))
-                screen.blit(backpack_text, (510, 567))
+                screen.blit(backpack_text, (510, 560))
 
                 pygame.draw.rect(screen, (38, 24, 24), (640, 550, 560, 80), 0, 10)
                 screen.blit(timer_icon, (1130, 560))
@@ -284,7 +288,7 @@ def main():
 
                 if select and not selling:
                     mouse_pos = (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], 3, 3)
-                    if check_collision_list(mouse_pos, sell_button):
+                    if check_collision_list(mouse_pos, sell_rect):
                         if trash_collected > 0:
                             start_sell = pygame.time.get_ticks()
                             selling = True
@@ -307,12 +311,12 @@ def main():
                 if selling:
                     pygame.draw.rect(screen, (50, 50, 50), sell_rect, 0, 10)
                     pygame.draw.rect(screen, sell_button_color, (sell_rect[0], sell_rect[1],
-                                                                 sell_rect[2] - int(time_elapsed / 9.2)
-                                                                 , sell_rect[3]), 0, 10)
+                                                                 sell_rect[2] - int(time_elapsed / 9.2),
+                                                                 sell_rect[3]), 0, 10)
                 else:
                     pygame.draw.rect(screen, sell_button_color, sell_rect, 0, 10)
 
-                screen.blit(sell_text, (570, 465))
+                screen.blit(sell_text, (600, 460))
             clock.tick(60)
             pygame.display.update()
 
@@ -331,8 +335,8 @@ def main():
                     return
 
             screen.blit(inside, (0, 0))
-            screen.blit(quit_text, (1050, 363))
-            screen.blit(start_text, (1010, 474))
+            screen.blit(quit_text, (1070, 360))
+            screen.blit(start_text, (1053, 468))
             clock.tick(10)
             pygame.display.update()
 
