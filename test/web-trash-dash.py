@@ -49,12 +49,25 @@ def main():
     screen = pygame.display.set_mode((1280, 640))
     # pygame.display.set_caption("Trash dash")
 
+    # load title_screen picture
     title_screen = pygame.image.load("assets/gfx/TitleScreen.png")
     title_screen = pygame.transform.scale(title_screen, (1280, 640))
 
+    # load outside picture
     house = pygame.image.load("assets/gfx/house.png")
     house = pygame.transform.scale(house, (1280, 640))
 
+    # Load assets for the atm
+    atm = pygame.image.load("assets/gfx/atm.png")
+    atm = pygame.transform.scale(atm, (1280, 640))
+    shop_hitbox = (100, 230, 70, 70)
+    sell_font = pygame.font.SysFont("calibri", 40)
+    sell_text = sell_font.render("Sell", True, (235, 235, 235))
+    sell_button_color = (71, 145, 64)
+    sell_button = (383, 445, 542, 80)
+    sell_rect = pygame.Rect(sell_button)
+
+    # load stuff for hotbar
     score_font = pygame.font.SysFont("calibri", 50)
     score_color = (191, 69, 69)
     hud_icon_size = 60
@@ -111,6 +124,7 @@ def main():
     # bools for what menu to be in
     running = True
     shop_open = False
+    selling = False
     interact = False
     select = False
 
@@ -136,6 +150,7 @@ def main():
     while True:
         while running:
             interact = False
+            select = False
 
             current_ticks = pygame.time.get_ticks()
             seconds = int(((current_ticks - start_ticks) / 1000))
@@ -158,6 +173,8 @@ def main():
                 # find which keys are pressed
                 if event.type == pygame.QUIT:
                     return
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    select = True
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         interact = True
@@ -230,6 +247,10 @@ def main():
                             dino.position[1] += dino.velocity[1]
                             dino.velocity[1] = 0
 
+                if interact and check_collision_list([dino.position[0], dino.position[1], 45, 52], shop_hitbox):
+                    shop_open = True
+                    selling = False
+
                 screen.blit(house, (0, 0))
 
                 for trash in trash_pieces:
@@ -257,6 +278,32 @@ def main():
                 screen.blit(timer_icon, (1130, 560))
                 pygame.draw.rect(screen, timer_color, timer_rect, 0, 10)
 
+            if shop_open:
+
+                if select and not selling:
+                    mouse_pos = (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], 3, 3)
+                    if check_collision_list(mouse_pos, sell_button):
+                        start_sell = pygame.time.get_ticks()
+                        selling = True
+
+                if selling:
+                    current_sell = pygame.time.get_ticks()
+                    time_elapsed = current_sell - start_sell
+                    if time_elapsed >= 5000:
+                        selling = False
+                        shop_open = False
+
+                # Update screen
+                screen.blit(atm, [0, 0])
+                if selling:
+                    pygame.draw.rect(screen, (50, 50, 50), sell_rect, 0, 10)
+                    pygame.draw.rect(screen, sell_button_color, (sell_rect[0], sell_rect[1],
+                                                                 sell_rect[2] - int(time_elapsed / 9.2), sell_rect[3]),
+                                     0, 10)
+                else:
+                    pygame.draw.rect(screen, (50, 50, 50), sell_rect, 0, 10)
+
+                screen.blit(sell_text, (570, 465))
             clock.tick(60)
             pygame.display.update()
 
