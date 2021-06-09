@@ -62,7 +62,12 @@ def main():
     inside = pygame.transform.scale(inside, (1280, 640))
 
     dino = Player()
-    left = False
+    keys = {
+        'up': False,
+        'down': False,
+        'left': False,
+        'right': False
+    }
 
     # create trash pieces
     trash_pieces = []
@@ -98,23 +103,41 @@ def main():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                        keys["left"] = True
+                    if event.key == pygame.K_RIGHT:
+                        keys["right"] = True
+                    if event.key == pygame.K_UP:
+                        keys["up"] = True
+                    if event.key == pygame.K_DOWN:
+                        keys["down"] = True
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_LEFT:
+                        keys["left"] = False
+                    if event.key == pygame.K_RIGHT:
+                        keys["right"] = False
+                    if event.key == pygame.K_UP:
+                        keys["up"] = False
+                    if event.key == pygame.K_DOWN:
+                        keys["down"] = False
 
             if not shop_open:
-                pressed = pygame.key.get_pressed()
-                if pressed[pygame.K_a]:
+
+                if keys["left"]:
                     dino.velocity[0] = -dino.speed
-                    if not left:
-                        left = True
-                        dino.currentSprite = dino.leftSprite
-                if pressed[pygame.K_d]:
+                    dino.currentSprite = dino.leftSprite
+                if keys["right"]:
                     dino.velocity[0] = dino.speed
-                    if left:
-                        left = False
-                        dino.currentSprite = dino.rightSprite
-                if pressed[pygame.K_w]:
+                    dino.currentSprite = dino.rightSprite
+                if keys["up"]:
                     dino.velocity[1] = -dino.speed
-                if pressed[pygame.K_s]:
+                if keys["down"]:
                     dino.velocity[1] = dino.speed
+                if keys["left"] and keys["right"]:
+                    dino.velocity[0] = 0
+                if keys["up"] and keys["down"]:
+                    dino.velocity[1] = 0
 
                 if not -0.5 > dino.velocity[0] > 0.5:
                     dino.position[0] += dino.velocity[0]
