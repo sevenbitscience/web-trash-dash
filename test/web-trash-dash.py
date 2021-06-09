@@ -36,8 +36,64 @@ class Player:
         self.speed = 2
         self.position = [100, 400]
         self.velocity = [0, 0]
+        self.frame = 0
+        self.costume = 0
+
+        self.walk = [pygame.image.load("assets/gfx/walking/DinoR1.png"),
+                     pygame.image.load("assets/gfx/walking/DinoR2.png"),
+                     pygame.image.load("assets/gfx/walking/DinoR3.png"),
+                     pygame.image.load("assets/gfx/walking/DinoR4.png"),
+                     pygame.image.load("assets/gfx/walking/DinoR5.png"),
+                     pygame.image.load("assets/gfx/walking/DinoR6.png")]
+
         self.idle = pygame.image.load("assets/gfx/dino.png")
+
+        self.duck_walk = [pygame.image.load("assets/gfx/DuckDino/DuckR1.png"),
+                          pygame.image.load("assets/gfx/DuckDino/DuckR2.png"),
+                          pygame.image.load("assets/gfx/DuckDino/DuckR3.png"),
+                          pygame.image.load("assets/gfx/DuckDino/DuckR4.png"),
+                          pygame.image.load("assets/gfx/DuckDino/DuckR5.png"),
+                          pygame.image.load("assets/gfx/DuckDino/DuckR6.png")]
+
+        self.duck_idle = pygame.image.load("assets/gfx/DuckDino/DuckIdle.png")
+
+        self.robo_walk = [pygame.image.load("assets/gfx/RoboDino/ROBOR1.png"),
+                          pygame.image.load("assets/gfx/RoboDino/ROBOR2.png"),
+                          pygame.image.load("assets/gfx/RoboDino/ROBOR3.png"),
+                          pygame.image.load("assets/gfx/RoboDino/ROBOR4.png"),
+                          pygame.image.load("assets/gfx/RoboDino/ROBOR5.png"),
+                          pygame.image.load("assets/gfx/RoboDino/ROBOR6.png")]
+
+        self.robo_idle = pygame.image.load("assets/gfx/RoboDino/DinoBotIdle.png")
+
         self.rightSprite = self.idle
+        self.rightSprite = pygame.transform.scale(self.rightSprite, (60, 60))
+        self.leftSprite = pygame.transform.flip(self.rightSprite, True, False)
+        self.currentSprite = self.rightSprite
+
+    def animate(self):
+        if self.frame >= len(self.walk):
+            self.frame = 0
+
+        if self.costume == 0:
+            self.rightSprite = self.walk[self.frame]
+        if self.costume == 1:
+            self.rightSprite = self.robo_walk[self.frame]
+        elif self.costume == 2:
+            self.rightSprite = self.duck_walk[self.frame]
+
+        self.rightSprite = pygame.transform.scale(self.rightSprite, (60, 60))
+        self.leftSprite = pygame.transform.flip(self.rightSprite, True, False)
+        self.frame += 1
+
+    def reset(self):
+        if self.costume == 0:
+            self.rightSprite = self.idle
+        if self.costume == 1:
+            self.rightSprite = self.robo_idle
+        elif self.costume == 2:
+            self.rightSprite = self.duck_idle
+
         self.rightSprite = pygame.transform.scale(self.rightSprite, (60, 60))
         self.leftSprite = pygame.transform.flip(self.rightSprite, True, False)
         self.currentSprite = self.rightSprite
@@ -52,11 +108,13 @@ def main():
     pygame.init()
     clock = pygame.time.Clock()
     screen = pygame.display.set_mode((1280, 640))
-    # pygame.display.set_caption("Trash dash")
 
     # load title_screen picture
     title_screen = pygame.image.load("assets/gfx/TitleScreen.png")
     title_screen = pygame.transform.scale(title_screen, (1280, 640))
+
+    screen.blit(title_screen, (0, 0))
+    pygame.display.update()
 
     # load outside picture
     house = pygame.image.load("assets/gfx/house.png")
@@ -100,6 +158,17 @@ def main():
     quit_text = upgrades_font.render("Quit", True, (181, 23, 2))
     inside = pygame.image.load("assets/gfx/inside.png")
     inside = pygame.transform.scale(inside, (1280, 640))
+    winScreen = pygame.image.load("assets/gfx/WinScreen.png")
+    winScreen = pygame.transform.scale(winScreen, (1280, 640))
+    GameWon = False
+    winButton = (825, 255, 100, 55)
+    backpack_button = (435, 255, 100, 55)
+    speed_button = (570, 255, 100, 55)
+    atm_button = (700, 255, 100, 55)
+    selected_icon = (94, 71, 13, 13)
+    costume1 = (72, 263, 71, 38)
+    costume2 = (185, 263, 71, 38)
+    costume3 = (299, 263, 71, 38)
 
     start_ticks = pygame.time.get_ticks()
     last_seconds = -1
@@ -135,9 +204,6 @@ def main():
     selling = False
 
     begin_button = (328, 191, 746, 72)
-    screen.blit(title_screen, (0, 0))
-    # pygame.draw.rect(screen, (0, 0, 0), begin_button)
-    pygame.display.update()
     on_title = True
 
     while on_title:
@@ -333,10 +399,67 @@ def main():
                     running = True
                 elif check_collision_list(mouse_pos, quit_button):
                     return
+                elif check_collision_list(mouse_pos, speed_button):
+                    if dino.speed < 10 and balance >= dino.speed * 20:
+                        balance -= dino.speed * 20
+                        dino.speed += 1
+                        score_text = score_font.render(str(balance), True, score_color)
+                elif check_collision_list(mouse_pos, backpack_button):
+                    if backpack < 30 and balance >= backpack * 3:
+                        balance -= backpack * 3
+                        backpack += 5
+                        score_text = score_font.render(str(balance), True, score_color)
+                        backpack_text = score_font.render(str(backpack), True, score_color)
+                elif check_collision_list(mouse_pos, atm_button):
+                    if trash_price < 20 and balance >= trash_price * 10:
+                        balance -= trash_price * 10
+                        trash_price += 2
+                        score_text = score_font.render(str(balance), True, score_color)
+                elif check_collision_list(mouse_pos, costume1):
+                    selected_icon = (94, 71, 13, 13)
+                    dino.costume = 0
+                    dino.reset()
+                elif check_collision_list(mouse_pos, costume2):
+                    selected_icon = (215, 71, 13, 13)
+                    dino.costume = 1
+                    dino.reset()
+                elif check_collision_list(mouse_pos, costume3):
+                    selected_icon = (329, 71, 13, 13)
+                    dino.costume = 2
+                    dino.reset()
+                elif check_collision_list(mouse_pos, winButton):
+                    if GameWon or balance >= 1000:
+                        GameWon = True
+                        pygame.time.delay(10)
+                        screen.blit(winScreen, (0, 0))
+                        pygame.display.update()
+                        pygame.time.delay(50)
+                        if not GameWon:
+                            balance -= 1000
 
             screen.blit(inside, (0, 0))
             screen.blit(quit_text, (1070, 360))
             screen.blit(start_text, (1053, 468))
+
+            pygame.draw.rect(screen, (13, 219, 67), selected_icon)
+            # pygame.draw.rect(screen, (13, 219, 67), backpack_button, 0, 20)
+            screen.blit(upgrades_font.render(str(backpack * 3), True, score_color), (470, 270))
+            # pygame.draw.rect(screen, (13, 219, 67), speed_button, 0, 20)
+            screen.blit(upgrades_font.render(str((dino.speed * 20)), True, score_color), (605, 270))
+            # pygame.draw.rect(screen, (13, 219, 67), atm_button, 0, 20)
+            screen.blit(upgrades_font.render(str((trash_price * 10)), True, score_color), (735, 270))
+            # pygame.draw.rect(screen, (13, 219, 67), winButton)
+            if not GameWon:
+                screen.blit(upgrades_font.render(str(1000), True, score_color), (862, 270))
+            # box_text(screen, fact_font, 1000, 1190, 90, fact, score_color)
+            pygame.draw.rect(screen, (38, 24, 24), score_holder, 0, 10)
+            screen.blit(trash_pile, (20, 560))
+            screen.blit(trash_text, (80, 567))
+            screen.blit(coin, (200, 560))
+            screen.blit(score_text, (270, 567))
+            screen.blit(backpack_icon, (450, 560))
+            screen.blit(backpack_text, (510, 567))
+
             clock.tick(10)
             pygame.display.update()
 
