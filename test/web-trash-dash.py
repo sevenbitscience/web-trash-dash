@@ -71,7 +71,7 @@ class Player:
         self.leftSprite = pygame.transform.flip(self.rightSprite, True, False)
         self.currentSprite = self.rightSprite
 
-    def animate(self):
+    def animate(self, left):
         if self.frame >= len(self.walk):
             self.frame = 0
 
@@ -84,6 +84,11 @@ class Player:
 
         self.rightSprite = pygame.transform.scale(self.rightSprite, (60, 60))
         self.leftSprite = pygame.transform.flip(self.rightSprite, True, False)
+
+        if left:
+            self.currentSprite = self.leftSprite
+        else:
+            self.currentSprite = self.rightSprite
         self.frame += 1
 
     def reset(self):
@@ -180,6 +185,9 @@ def main():
     timer_color = [0, 255, 0]
 
     dino = Player()
+    last_frame = start_ticks
+    left = False
+
     keys = {
         'up': False,
         'down': False,
@@ -261,12 +269,16 @@ def main():
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         keys["left"] = False
+                        dino.reset()
                     if event.key == pygame.K_RIGHT:
                         keys["right"] = False
+                        dino.reset()
                     if event.key == pygame.K_UP:
                         keys["up"] = False
+                        dino.reset()
                     if event.key == pygame.K_DOWN:
                         keys["down"] = False
+                        dino.reset()
 
             if not shop_open:
 
@@ -274,10 +286,10 @@ def main():
                     # Use which keys are being pressed to find which way to move
                     if keys["left"]:
                         dino.velocity[0] = -dino.speed
-                        dino.currentSprite = dino.leftSprite
+                        left = True
                     if keys["right"]:
                         dino.velocity[0] = dino.speed
-                        dino.currentSprite = dino.rightSprite
+                        left = False
                     if keys["up"]:
                         dino.velocity[1] = -dino.speed
                     if keys["down"]:
@@ -293,10 +305,13 @@ def main():
                     next_pos = [(dino.position[0] + 8) + dino.velocity[0], (dino.position[1] + 6) + dino.velocity[1],
                                 45, 52]
 
+                    if current_ticks - last_frame >= 80:
+                        dino.animate(left)
+                        last_frame = current_ticks
+
                     # deal with x positions:
                     # check if the dino is going to be within the screen
                     if dino.velocity[0] != 0:
-
                         for barrier in barriers:
                             if check_collision_list(next_pos, barrier):
                                 dino.velocity[0] = 0
@@ -309,7 +324,6 @@ def main():
                     # deal with y positions
                     # check if the dino is going to be within the screen
                     if dino.velocity[1] != 0:
-
                         for barrier in barriers:
                             if check_collision_list(next_pos, barrier):
                                 dino.velocity[1] = 0
@@ -442,26 +456,38 @@ def main():
             screen.blit(start_text, (1053, 468))
 
             pygame.draw.rect(screen, (13, 219, 67), selected_icon)
+
             # pygame.draw.rect(screen, (13, 219, 67), backpack_button, 0, 20)
             screen.blit(upgrades_font.render(str(backpack * 3), True, score_color), (470, 270))
+
             # pygame.draw.rect(screen, (13, 219, 67), speed_button, 0, 20)
             screen.blit(upgrades_font.render(str((dino.speed * 20)), True, score_color), (605, 270))
+
             # pygame.draw.rect(screen, (13, 219, 67), atm_button, 0, 20)
             screen.blit(upgrades_font.render(str((trash_price * 10)), True, score_color), (735, 270))
+
             # pygame.draw.rect(screen, (13, 219, 67), winButton)
             if not GameWon:
                 screen.blit(upgrades_font.render(str(1000), True, score_color), (862, 270))
+
             # box_text(screen, fact_font, 1000, 1190, 90, fact, score_color)
+
             pygame.draw.rect(screen, (38, 24, 24), score_holder, 0, 10)
             screen.blit(trash_pile, (20, 560))
-            screen.blit(trash_text, (80, 567))
+            screen.blit(trash_text, (80, 560))
             screen.blit(coin, (200, 560))
-            screen.blit(score_text, (270, 567))
+            screen.blit(score_text, (270, 560))
             screen.blit(backpack_icon, (450, 560))
-            screen.blit(backpack_text, (510, 567))
+            screen.blit(backpack_text, (510, 560))
 
             clock.tick(10)
             pygame.display.update()
+        time_left = total_time
+        start_ticks = pygame.time.get_ticks()
+        last_frame = 0
+        dino.position = [100, 400]
+        for trash in trash_pieces:
+            trash.reset()
 
 
 if __name__ == "__main__":
