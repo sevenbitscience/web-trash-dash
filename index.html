@@ -12,23 +12,15 @@
 </head>
 
 <body>
-<div class="col-md-2"></div>
-<div class="col-md-8">
-    <div id="mycanvas"></div>
-    <div class="row">
-        <div class="col-xs-6" id="editorsplace">
-            <div id="editor" style="border: 1px solid black"></div>
-        </div>
-        <div class="col-xs-6">
-            <pre id="output" class="text-left"></pre>
-        </div>
+<div id="mycanvas"></div>
+<div class="row">
+    <div class="col-xs-6" id="editorsplace">
+        <div id="editor" style="border: 1px solid black"></div>
     </div>
-    <div class="col-md-5"></div>
-    <a class="btn btn-primary col-md-2" id="runbutton">Run<span class="glyphicon glyphicon-play"
-                                                                     aria-hidden="true"></span></a>
-
-
 </div>
+<div class="col-md-5"></div>
+<a class="btn btn-primary col-md-2" id="runbutton">Run<span class="glyphicon glyphicon-play"
+                                                                     aria-hidden="true"></span></a>
 <div class="col-md-2"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
@@ -189,13 +181,11 @@
     }
 
     function addModal() {
-        $(Sk.main_canvas).css("border", "1px solid blue");
         var currentTarget = resetTarget();
 
         var div1 = document.createElement("div");
         currentTarget.appendChild(div1);
         $(div1).addClass("modal");
-        $(div1).css("text-align", "center");
 
         var btn1 = document.createElement("span");
         $(btn1).addClass("btn btn-primary btn-sm pull-right");
@@ -208,9 +198,7 @@
         });
 
         var div2 = document.createElement("div");
-        $(div2).addClass("modal-dialog modal-lg");
-        $(div2).css("display", "inline-block");
-        $(div2).width(1500);
+        $(div2).width(1350);
         $(div2).attr("role", "document");
         div1.appendChild(div2);
 
@@ -219,9 +207,10 @@
         div2.appendChild(div3);
 
         var div4 = document.createElement("div");
-        $(div4).addClass("modal-header d-flex justify-content-between");
+        $(div4).addClass("modal-header d-flex");
         var div5 = document.createElement("div");
         $(div5).addClass("modal-body");
+        $(div5).css("padding: 0px;");
         var div6 = document.createElement("div");
         $(div6).addClass("modal-footer");
         var div7 = document.createElement("div");
@@ -257,8 +246,7 @@
             $('.modal').modal('hide');
         };
         addModal();
-
-        var prog = data;
+        var prog = ace.edit("editor").getValue();
 
         Sk.misceval.asyncToPromise(function () {
             try {
