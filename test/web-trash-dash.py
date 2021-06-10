@@ -168,6 +168,13 @@ def main():
     costume2 = (185, 263, 71, 38)
     costume3 = (299, 263, 71, 38)
 
+    fact_font = pygame.font.SysFont("calibri", 12)
+    f = open("assets/facts.txt", "r", encoding="utf8")
+    content = f.read()
+    facts = content.splitlines()
+    f.close()
+    fact = facts[random.randrange(len(facts))]
+
     start_ticks = pygame.time.get_ticks()
     last_seconds = -1
     total_time = 10
@@ -203,6 +210,22 @@ def main():
     running = False
     shop_open = False
     selling = False
+
+    def box_text(surface, font, x_start, x_end, y_start, text, colour):
+        x = x_start
+        y = y_start
+        words = text.split(' ')
+
+        for word in words:
+            word_t = font.render(word+' ', True, colour)
+            if word_t.get_width() + x <= x_end:
+                surface.blit(word_t, (x, y))
+                x += word_t.get_width() + 2
+            else:
+                y += word_t.get_height() + 4
+                x = x_start
+                surface.blit(word_t, (x, y))
+                x += word_t.get_width() + 2
 
     begin_button = (328, 191, 746, 72)
     on_title = True
@@ -498,7 +521,7 @@ def main():
             if not GameWon:
                 screen.blit(upgrades_font.render(str(1000), True, score_color), (862, 270))
 
-            # box_text(screen, fact_font, 1000, 1190, 90, fact, score_color)
+            box_text(screen, fact_font, 1000, 1190, 80, fact, score_color)
 
             pygame.draw.rect(screen, (38, 24, 24), score_holder, 0, 10)
             screen.blit(trash_pile, (20, 560))
