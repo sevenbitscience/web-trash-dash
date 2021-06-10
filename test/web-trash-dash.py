@@ -69,7 +69,6 @@ class Player:
         self.rightSprite = self.idle
         self.rightSprite = pygame.transform.scale(self.rightSprite, (60, 60))
         self.leftSprite = pygame.transform.flip(self.rightSprite, True, False)
-        self.currentSprite = self.rightSprite
 
     def animate(self, left):
         if self.frame >= len(self.walk):
@@ -84,11 +83,6 @@ class Player:
 
         self.rightSprite = pygame.transform.scale(self.rightSprite, (60, 60))
         self.leftSprite = pygame.transform.flip(self.rightSprite, True, False)
-
-        if left:
-            self.currentSprite = self.leftSprite
-        else:
-            self.currentSprite = self.rightSprite
         self.frame += 1
 
     def reset(self):
@@ -101,7 +95,6 @@ class Player:
 
         self.rightSprite = pygame.transform.scale(self.rightSprite, (60, 60))
         self.leftSprite = pygame.transform.flip(self.rightSprite, True, False)
-        self.currentSprite = self.rightSprite
 
 
 def check_collision_list(a, b):
@@ -177,7 +170,7 @@ def main():
 
     start_ticks = pygame.time.get_ticks()
     last_seconds = -1
-    total_time = 60
+    total_time = 10
     time_left = total_time
     timer_width = 490
     timer_step = timer_width / time_left
@@ -286,10 +279,8 @@ def main():
                     # Use which keys are being pressed to find which way to move
                     if keys["left"]:
                         dino.velocity[0] = -dino.speed
-                        left = True
                     if keys["right"]:
                         dino.velocity[0] = dino.speed
-                        left = False
                     if keys["up"]:
                         dino.velocity[1] = -dino.speed
                     if keys["down"]:
@@ -304,6 +295,11 @@ def main():
                     # find the next position of the dino
                     next_pos = [(dino.position[0] + 8) + dino.velocity[0], (dino.position[1] + 6) + dino.velocity[1],
                                 45, 52]
+
+                    if dino.velocity[0] > 0:
+                        left = False
+                    elif dino.velocity[0] < 0:
+                        left = True
 
                     if current_ticks - last_frame >= 80:
                         dino.animate(left)
@@ -350,7 +346,10 @@ def main():
                     screen.blit(trash.sprite, (trash.position[0], trash.position[1]))
                     trash.fall()
 
-                screen.blit(dino.currentSprite, dino.position)
+                if left:
+                    screen.blit(dino.leftSprite, dino.position)
+                else:
+                    screen.blit(dino.rightSprite, dino.position)
 
                 pygame.draw.rect(screen, (38, 24, 24), score_holder, 0, 10)
                 screen.blit(trash_pile, (20, 560))
@@ -400,7 +399,36 @@ def main():
             clock.tick(60)
             pygame.display.update()
 
-        while not running:
+        if trash_collected > 0:
+
+            selling = True
+            start_sell = pygame.time.get_ticks()
+
+            while selling:
+                current_sell = pygame.time.get_ticks()
+                time_elapsed = current_sell - start_sell
+                if time_elapsed >= 5000:
+                    balance += trash_collected * trash_price
+                    trash_collected = 0
+                    trash_text = score_font.render(str(trash_collected), True, score_color)
+                    score_text = score_font.render(str(balance), True, score_color)
+                    selling = False
+                    shop_open = False
+
+                # Update screen
+                screen.blit(atm, [0, 0])
+                if selling:
+                    pygame.draw.rect(screen, (50, 50, 50), sell_rect, 0, 10)
+                    pygame.draw.rect(screen, sell_button_color, (sell_rect[0], sell_rect[1],
+                                                                 sell_rect[2] - int(time_elapsed / 9.2),
+                                                                 sell_rect[3]), 0, 10)
+                else:
+                    pygame.draw.rect(screen, sell_button_color, sell_rect, 0, 10)
+
+                clock.tick(60)
+                pygame.display.update()
+
+        while not running and not selling:
             select = False
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -482,9 +510,16 @@ def main():
 
             clock.tick(10)
             pygame.display.update()
-        time_left = total_time
+
         start_ticks = pygame.time.get_ticks()
+        last_seconds = -1
+        total_time = 60
+        time_left = total_time
+        timer_width = 490
+        timer_step = timer_width / time_left
+        timer_rect = [650, 562, timer_width, 55]
         last_frame = 0
+        timer_width = 490
         dino.position = [100, 400]
         for trash in trash_pieces:
             trash.reset()
