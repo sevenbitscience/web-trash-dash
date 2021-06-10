@@ -239,7 +239,7 @@ def main():
                 timer_color = [245, 197, 39]
             elif 0 < time_left < 15:
                 timer_color = [184, 44, 22]
-            elif time_left <= 0:
+            elif time_left <= 0 and not shop_open:
                 running = False
 
             for event in pygame.event.get():
