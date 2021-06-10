@@ -287,55 +287,10 @@
         fileopen: pyFile => {
         //console.info(pyFile);
         }
-    });
+        });
     $("#runbutton").click(function () {
         runCode();
     });
-
-    defaultFileRead(x) {
-        // Try to read local fileObject
-        const file = this.project.readFile(x);
-
-        if (file != null) {
-          return file;
-        }
-
-        if (Sk.builtinFiles === undefined || Sk.builtinFiles.files[x] === undefined) {
-          throw new Error(`File not found: '${x}'`);
-        }
-        return Sk.builtinFiles.files[x];
-    }
-
-    _fileRead(x, mode='r') {
-        const name = x.replace('./', '');
-        const file = this.project.getFileForName(name);
-
-        // Check mode
-        if (mode === 'w') {
-          if (file != null) {
-            file.setValue('');
-          } else {
-            // Create new file
-            this.project.addFile(name, '', undefined, false);
-          }
-
-          return '';
-        }
-
-        if (file == null && mode === 'x') {
-          // Create new file
-          this.project.addFile(name, '', undefined, false);
-          return '';
-        }
-
-        if (mode === 'b') {
-          throw new Sk.builtin.IOError('Binary mode is not supported');
-        }
-
-        if (file != null) {
-      return file.getValue();
-        }
-    }
 
     var sourcePath = "./test/web-trash-dash.py";
     if (window.location.search.substring(1).length > 0) {

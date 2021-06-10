@@ -169,7 +169,7 @@ def main():
     costume3 = (299, 263, 71, 38)
 
     fact_font = pygame.font.SysFont("calibri", 12)
-    f = open('assets/facts.txt')
+    f = open("assets/facts.txt", "r", encoding="utf8")
     content = f.read()
     facts = content.splitlines()
     f.close()
