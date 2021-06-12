@@ -170,7 +170,7 @@ def main():
     costume3 = (299, 263, 71, 38)
 
     fact_font = pygame.font.SysFont("calibri", 12)
-    facts = ("The Mississippi River carries an estimated 1.5 million metric tons of nitrogen pollution into the Gulf of Mexico each year, creating a dead zone in the Gulf each summer about the size of New Jersey.", \
+    facts = ("The Mississippi River carries an estimated 1.5 million metric tons of nitrogen pollution into the Gulf of Mexico each year, creating a dead zone in the Gulf each summer about the size of New Jersey.",
              "Approximately 40% of the lakes in America are too polluted for fishing, aquatic life, or swimming.",
              "Each year 1.2 trillion gallons of untreated sewage, stormwater, and industrial waste are dumped into US water.",
              "Every day, 2 million tons of sewage and industrial and agricultural waste are discharged into the world's water (UN WWAP 2003), the equivalent of the weight of the entire human population of 6.8 billion people.",
@@ -439,8 +439,15 @@ def main():
                         trash_collected = 0
                         trash_text = score_font.render(str(trash_collected), True, score_color)
                         score_text = score_font.render(str(balance), True, score_color)
+
                         selling = False
                         shop_open = False
+                        keys = {
+                            'up': False,
+                            'down': False,
+                            'left': False,
+                            'right': False
+                        }
 
                 # Update screen
                 screen.blit(atm, [0, 0])
@@ -481,6 +488,7 @@ def main():
                                                                  sell_rect[3]), 0, 10)
                 else:
                     pygame.draw.rect(screen, sell_button_color, sell_rect, 0, 10)
+                    screen.blit(sell_text, (600, 460))
 
                 clock.tick(60)
                 pygame.display.update()
@@ -504,13 +512,13 @@ def main():
                         dino.speed += 1
                         score_text = score_font.render(str(balance), True, score_color)
                 elif check_collision_list(mouse_pos, backpack_button):
-                    if backpack < 30 and balance >= backpack * 3:
+                    if balance >= backpack * 3:
                         balance -= backpack * 3
                         backpack += 5
                         score_text = score_font.render(str(balance), True, score_color)
                         backpack_text = score_font.render(str(backpack), True, score_color)
                 elif check_collision_list(mouse_pos, atm_button):
-                    if trash_price < 20 and balance >= trash_price * 10:
+                    if balance >= trash_price * 10:
                         balance -= trash_price * 10
                         trash_price += 2
                         score_text = score_font.render(str(balance), True, score_color)
@@ -583,6 +591,14 @@ def main():
         dino.position = [100, 400]
         for trash in trash_pieces:
             trash.reset()
+        
+        keys = {
+            'up': False,
+            'down': False,
+            'left': False,
+            'right': False
+        }
+        dino.reset()
 
 
 if __name__ == "__main__":
