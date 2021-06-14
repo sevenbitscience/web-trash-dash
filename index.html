@@ -17,7 +17,7 @@
 
 <script>
 
-    console.log('Updated 6/14/2021 6:29')
+    console.log('Updated 6/14/2021 6:30')
 
     var client = new XMLHttpRequest();
     client.open('GET', 'https://www.sevenbitscience.com/web-trash-dash/test/web-trash-dash.py');
@@ -71,14 +71,8 @@
     }
 
     function printString(text) {
-        var output = document.getElementById("output");
         text = text.replace(/</g, '&lt;');
-        output.innerHTML = output.innerHTML + text;
-    }
-
-    function clearOutput() {
-        var output = document.getElementById("output");
-        output.innerHTML = '';
+        console.log(text)
     }
 
     function builtinRead(x) {
