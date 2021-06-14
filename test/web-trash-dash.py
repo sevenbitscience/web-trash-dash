@@ -591,7 +591,7 @@ def main():
         dino.position = [100, 400]
         for trash in trash_pieces:
             trash.reset()
-        
+
         keys = {
             'up': False,
             'down': False,
