@@ -17,7 +17,32 @@
 
 <script>
 
-    console.log('Updated 6/14/2021 6:30')
+    const desiredRepo = "web-trash-dash";
+    const dateTagClass = ".date";
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function()
+    {
+      if (this.readyState == 4 && this.status == 200)
+      {
+        let repos = JSON.parse(this.responseText);
+
+        repos.forEach((repo)=>{
+          if (repo.name == desiredRepo)
+          {
+            var lastUpdated = new Date(repo.updated_at);
+            var day = lastUpdated.getDate();
+            var month = lastUpdated.getMonth();
+            var year = lastUpdated.getFullYear();
+            var hours = lastUpdated.getHours();
+            var minutes = lastUpdated.getMinutes();
+            console.log("Last updated: " +  month + "-" + day + "-" + year +  " " + hours + ":" + minutes);
+          }
+        });
+      }
+    };
+    xhttp.open("GET", "https://api.github.com/users/sevenbitscience/repos", true);
+    xhttp.send();
 
     var client = new XMLHttpRequest();
     client.open('GET', 'https://www.sevenbitscience.com/web-trash-dash/test/web-trash-dash.py');
