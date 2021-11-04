@@ -566,6 +566,7 @@ def main():
             if not GameWon:
                 screen.blit(upgrades_font.render(str(1000), True, score_color), (862, 270))
 
+            fact = facts[random.randrange(len(facts))]
             box_text(screen, fact_font, 1000, 1182, 85, fact, score_color)
 
             pygame.draw.rect(screen, (38, 24, 24), score_holder, 0, 10)
